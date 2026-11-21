@@ -11595,7 +11595,10 @@ func (e *Engine) prepareSessionNormalizedContext(
 	if !pw.sourceIdentityUnverified {
 		remote = e.toolLinkRemote(candidate.Session, pw.sess.GitRemote)
 	}
-	toolLinks := db.ToolCallPRLinks(candidate.Messages, candidate.Session.Cwd, remote)
+	toolLinks, err := db.ToolCallPRLinks(ctx, candidate.Messages, candidate.Session.Cwd, remote)
+	if err != nil {
+		return preparedSessionWrite{}, sessionWritePreserved, err
+	}
 	history, err := e.reconcileProviderHistoryContext(ctx, candidate)
 	if err != nil {
 		return preparedSessionWrite{}, sessionWritePreserved, err
@@ -11609,7 +11612,10 @@ func (e *Engine) prepareSessionNormalizedContext(
 		return preparedSessionWrite{}, sessionWritePreserved, err
 	}
 	if forkState != nil {
-		toolLinks = db.ToolCallPRLinks(candidate.Messages, candidate.Session.Cwd, remote)
+		toolLinks, err = db.ToolCallPRLinks(ctx, candidate.Messages, candidate.Session.Cwd, remote)
+		if err != nil {
+			return preparedSessionWrite{}, sessionWritePreserved, err
+		}
 	}
 	candidate.Messages, _ = e.projectToolResultImagesForPrepare(candidate.Messages)
 	if err := ctx.Err(); err != nil {
