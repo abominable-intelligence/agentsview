@@ -11608,6 +11608,9 @@ func (e *Engine) prepareSessionNormalizedContext(
 	if err != nil {
 		return preparedSessionWrite{}, sessionWritePreserved, err
 	}
+	if forkState != nil {
+		toolLinks = db.ToolCallPRLinks(candidate.Messages, candidate.Session.Cwd, remote)
+	}
 	candidate.Messages, _ = e.projectToolResultImagesForPrepare(candidate.Messages)
 	if err := ctx.Err(); err != nil {
 		return preparedSessionWrite{}, sessionWritePreserved, err
